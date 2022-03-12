@@ -30,3 +30,10 @@
 *.exe
 *.out
 *.app
+
+#Vim swaps
+.*.sw*
+
+#Assignment binaries
+assignments/zero/a0
+assignments/zero/a0soln
