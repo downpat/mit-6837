@@ -17,6 +17,9 @@ vector<Vector3f> vecn;
 // This is the list of faces (indices into vecv and vecn)
 vector<vector<unsigned> > vecf;
 
+//Index for the currently selected teapot color
+int colorIdx = 0;
+
 
 // You will need more global variables to implement color and position changes
 
@@ -40,7 +43,11 @@ void keyboardFunc( unsigned char key, int x, int y )
         break;
     case 'c':
         // add code to change color here
-		cout << "Unhandled key press " << key << "." << endl; 
+	colorIdx++;
+	if(colorIdx > 3) {
+            colorIdx = 0;
+	}
+	cout << "Color changed. The colorIdx is:" << colorIdx << endl;
         break;
     default:
         cout << "Unhandled key press " << key << "." << endl;        
@@ -105,7 +112,7 @@ void drawScene(void)
                                  {0.3, 0.8, 0.9, 1.0} };
     
 	// Here we use the first color entry as the diffuse color
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, diffColors[0]);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, diffColors[colorIdx]);
 
 	// Define specular color and shininess
     GLfloat specColor[] = {1.0, 1.0, 1.0, 1.0};
