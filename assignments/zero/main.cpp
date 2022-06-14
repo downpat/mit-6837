@@ -8,6 +8,9 @@ using namespace std;
 
 // Globals
 
+//CONSTANTS
+int MAX_BUFFER_SIZE = 10000;
+
 // This is the list of points (3D vectors)
 vector<Vector3f> vecv;
 
@@ -19,6 +22,10 @@ vector<vector<unsigned> > vecf;
 
 //Index for the currently selected teapot color
 int colorIdx = 0;
+
+//Floats for positioning the light
+float lightX = 1.0f;
+float lightY = 1.0f;
 
 
 // You will need more global variables to implement color and position changes
@@ -49,6 +56,9 @@ void keyboardFunc( unsigned char key, int x, int y )
 	}
 	cout << "Color changed. The colorIdx is:" << colorIdx << endl;
         break;
+    case 'x': // Escape key
+        exit(0);
+        break;
     default:
         cout << "Unhandled key press " << key << "." << endl;        
     }
@@ -65,18 +75,22 @@ void specialFunc( int key, int x, int y )
     {
     case GLUT_KEY_UP:
         // add code to change light position
+		lightY = lightY + 0.5f;
 		cout << "Unhandled key press: up arrow." << endl;
 		break;
     case GLUT_KEY_DOWN:
         // add code to change light position
+		lightY = lightY - 0.5f;
 		cout << "Unhandled key press: down arrow." << endl;
 		break;
     case GLUT_KEY_LEFT:
         // add code to change light position
+		lightX = lightX + 0.5f;
 		cout << "Unhandled key press: left arrow." << endl;
 		break;
     case GLUT_KEY_RIGHT:
         // add code to change light position
+		lightX = lightX - 0.5f;
 		cout << "Unhandled key press: right arrow." << endl;
 		break;
     }
@@ -127,7 +141,7 @@ void drawScene(void)
     // Light color (RGBA)
     GLfloat Lt0diff[] = {1.0,1.0,1.0,1.0};
     // Light position
-	GLfloat Lt0pos[] = {1.0f, 1.0f, 5.0f, 1.0f};
+	GLfloat Lt0pos[] = {lightX, lightY, 5.0f, 1.0f};
 
     glLightfv(GL_LIGHT0, GL_DIFFUSE, Lt0diff);
     glLightfv(GL_LIGHT0, GL_POSITION, Lt0pos);
@@ -168,9 +182,39 @@ void reshapeFunc(int w, int h)
     gluPerspective(50.0, 1.0, 1.0, 100.0);
 }
 
+
 void loadInput()
 {
-	// load the OBJ file here
+    //Loop over stdin to get the obj file
+    char buffer[MAX_BUFFER_SIZE];
+    while(cin.getline(buffer, MAX_BUFFER_SIZE)) {
+        stringstream fileLine(buffer);
+        string charOne;
+        fileLine >> charOne;
+	if(charOne == "v") {
+	    Vector3f v;
+	    fileLine >> v[0] >> v[1] >> v[2];
+            vecv.push_back(v);
+	} else if(charOne == "vn") {
+	    Vector3f v;
+	    fileLine >> v[0] >> v[1] >> v[2];
+            vecn.push_back(v);
+	} else if(charOne == "f") {
+            vector<unsigned> v;
+	    string one;
+	    string two;
+	    string three;
+	    fileLine >> one >> two >> three;
+	    cout << "One: " << one << " Two: " << two << " Three: " << three << endl;
+	    string oneA = one.substr(0, one.find('/'));
+	    string four = one.erase(0, one.find('/') + 1);
+	    string oneB = four.substr(0, four.find('/'));
+	    string five = four.erase(0, four.find('/') + 1);
+	    cout << "OneA: " << oneA << " oneB: " << oneB << " Five: " << five << endl;
+	}
+    }
+    cout << "Vecv size: " << vecv.size() << endl;
+    cout << "Vecn size: " << vecn.size() << endl;
 }
 
 // Main routine.
@@ -179,31 +223,31 @@ int main( int argc, char** argv )
 {
     loadInput();
 
-    glutInit(&argc,argv);
+    //glutInit(&argc,argv);
 
-    // We're going to animate it, so double buffer 
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
+    //// We're going to animate it, so double buffer 
+    //glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
 
-    // Initial parameters for window position and size
-    glutInitWindowPosition( 60, 60 );
-    glutInitWindowSize( 360, 360 );
-    glutCreateWindow("Assignment 0");
+    //// Initial parameters for window position and size
+    //glutInitWindowPosition( 60, 60 );
+    //glutInitWindowSize( 360, 360 );
+    //glutCreateWindow("Assignment 0");
 
-    // Initialize OpenGL parameters.
-    initRendering();
+    //// Initialize OpenGL parameters.
+    //initRendering();
 
-    // Set up callback functions for key presses
-    glutKeyboardFunc(keyboardFunc); // Handles "normal" ascii symbols
-    glutSpecialFunc(specialFunc);   // Handles "special" keyboard keys
+    //// Set up callback functions for key presses
+    //glutKeyboardFunc(keyboardFunc); // Handles "normal" ascii symbols
+    //glutSpecialFunc(specialFunc);   // Handles "special" keyboard keys
 
-     // Set up the callback function for resizing windows
-    glutReshapeFunc( reshapeFunc );
+    // // Set up the callback function for resizing windows
+    //glutReshapeFunc( reshapeFunc );
 
-    // Call this whenever window needs redrawing
-    glutDisplayFunc( drawScene );
+    //// Call this whenever window needs redrawing
+    //glutDisplayFunc( drawScene );
 
-    // Start the main loop.  glutMainLoop never returns.
-    glutMainLoop( );
+    //// Start the main loop.  glutMainLoop never returns.
+    //glutMainLoop( );
 
     return 0;	// This line is never reached.
 }
