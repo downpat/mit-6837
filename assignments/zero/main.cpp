@@ -201,16 +201,6 @@ void loadInput()
             vecn.push_back(v);
 	} else if(charOne == "f") {
             vector<unsigned> v;
-	    string one;
-	    string two;
-	    string three;
-	    fileLine >> one >> two >> three;
-	    cout << "One: " << one << " Two: " << two << " Three: " << three << endl;
-	    string oneA = one.substr(0, one.find('/'));
-	    string four = one.erase(0, one.find('/') + 1);
-	    string oneB = four.substr(0, four.find('/'));
-	    string five = four.erase(0, four.find('/') + 1);
-	    cout << "OneA: " << oneA << " oneB: " << oneB << " Five: " << five << endl;
 	}
     }
     cout << "Vecv size: " << vecv.size() << endl;
