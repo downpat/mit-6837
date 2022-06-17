@@ -99,6 +99,31 @@ void specialFunc( int key, int x, int y )
     glutPostRedisplay();
 }
 
+void drawInput() {
+    for(int idx = 0; idx < vecf.size(); idx++) {
+        unsigned a, b, c, d, e, f, g, h, i;
+        vector<unsigned> face = vecf[idx];
+        a = face[0];
+        b = face[1];
+        c = face[2];
+        d = face[3];
+        e = face[4];
+        f = face[5];
+        g = face[6];
+        h = face[7];
+        i = face[8];
+
+        glBegin(GL_TRIANGLES);
+        glNormal3d(vecn[c-1][0], vecn[c-1][1], vecn[c-1][2]);
+        glVertex3d(vecv[a-1][0], vecv[a-1][1], vecv[a-1][2]);
+        glNormal3d(vecn[f-1][0], vecn[f-1][1], vecn[f-1][2]);
+        glVertex3d(vecv[d-1][0], vecv[d-1][1], vecv[d-1][2]);
+        glNormal3d(vecn[i-1][0], vecn[i-1][1], vecn[i-1][2]);
+        glVertex3d(vecv[g-1][0], vecv[g-1][1], vecv[g-1][2]);
+        glEnd();
+    }
+}
+
 // This function is responsible for displaying the object.
 void drawScene(void)
 {
@@ -148,7 +173,8 @@ void drawScene(void)
 
 	// This GLUT method draws a teapot.  You should replace
 	// it with code which draws the object you loaded.
-	glutSolidTeapot(1.0);
+	//glutSolidTeapot(1.0);
+        drawInput();
     
     // Dump the image to the screen.
     glutSwapBuffers();
@@ -182,9 +208,52 @@ void reshapeFunc(int w, int h)
     gluPerspective(50.0, 1.0, 1.0, 100.0);
 }
 
+vector<unsigned> faceTripletToVec(string faceTrip) {
+    size_t firstSlashPos, secondSlashPos;
+
+    //Get slash positions
+    firstSlashPos = faceTrip.find('/');
+    secondSlashPos = faceTrip.find('/', firstSlashPos + 1);
+    
+    //Get split strings
+    string vertex = faceTrip.substr(0, firstSlashPos);
+    string dunno = faceTrip.substr(
+        firstSlashPos + 1,
+        secondSlashPos - firstSlashPos - 1
+    );
+    string normal = faceTrip.substr(
+        secondSlashPos + 1,
+        string::npos
+    );
+
+    //Convert split strings to integers and add to final vector
+    vector<unsigned> uVec;
+    uVec.push_back(stoul(vertex));
+    uVec.push_back(stoul(dunno));
+    uVec.push_back(stoul(normal));
+
+    return uVec;
+}
+
+vector<unsigned> combineFaceTriples(vector<unsigned> trip1,
+        vector<unsigned> trip2, vector<unsigned> trip3) {
+    vector<unsigned> v;
+    v.push_back(trip1[0]);
+    v.push_back(trip1[1]);
+    v.push_back(trip1[2]);
+    v.push_back(trip2[0]);
+    v.push_back(trip2[1]);
+    v.push_back(trip2[2]);
+    v.push_back(trip3[0]);
+    v.push_back(trip3[1]);
+    v.push_back(trip3[2]);
+
+    return v;
+}
 
 void loadInput()
 {
+    cout << "Loading input..." << endl;
     //Loop over stdin to get the obj file
     char buffer[MAX_BUFFER_SIZE];
     while(cin.getline(buffer, MAX_BUFFER_SIZE)) {
@@ -200,11 +269,20 @@ void loadInput()
 	    fileLine >> v[0] >> v[1] >> v[2];
             vecn.push_back(v);
 	} else if(charOne == "f") {
-            vector<unsigned> v;
+            string strabc, strdef, strghi;
+            fileLine >> strabc >> strdef >> strghi;
+
+            vector<unsigned> trip1, trip2, trip3;
+            trip1 = faceTripletToVec(strabc);
+            trip2 = faceTripletToVec(strdef);
+            trip3 = faceTripletToVec(strghi);
+
+            vecf.push_back(combineFaceTriples(trip1, trip2, trip3));
 	}
     }
     cout << "Vecv size: " << vecv.size() << endl;
     cout << "Vecn size: " << vecn.size() << endl;
+    cout << "Vecf size: " << vecf.size() << endl;
 }
 
 // Main routine.
@@ -213,31 +291,31 @@ int main( int argc, char** argv )
 {
     loadInput();
 
-    //glutInit(&argc,argv);
+    glutInit(&argc,argv);
 
-    //// We're going to animate it, so double buffer 
-    //glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
+    // We're going to animate it, so double buffer 
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
 
-    //// Initial parameters for window position and size
-    //glutInitWindowPosition( 60, 60 );
-    //glutInitWindowSize( 360, 360 );
-    //glutCreateWindow("Assignment 0");
+    // Initial parameters for window position and size
+    glutInitWindowPosition( 60, 60 );
+    glutInitWindowSize( 360, 360 );
+    glutCreateWindow("Assignment 0");
 
-    //// Initialize OpenGL parameters.
-    //initRendering();
+    // Initialize OpenGL parameters.
+    initRendering();
 
-    //// Set up callback functions for key presses
-    //glutKeyboardFunc(keyboardFunc); // Handles "normal" ascii symbols
-    //glutSpecialFunc(specialFunc);   // Handles "special" keyboard keys
+    // Set up callback functions for key presses
+    glutKeyboardFunc(keyboardFunc); // Handles "normal" ascii symbols
+    glutSpecialFunc(specialFunc);   // Handles "special" keyboard keys
 
-    // // Set up the callback function for resizing windows
-    //glutReshapeFunc( reshapeFunc );
+     // Set up the callback function for resizing windows
+    glutReshapeFunc( reshapeFunc );
 
-    //// Call this whenever window needs redrawing
-    //glutDisplayFunc( drawScene );
+    // Call this whenever window needs redrawing
+    glutDisplayFunc( drawScene );
 
-    //// Start the main loop.  glutMainLoop never returns.
-    //glutMainLoop( );
+    // Start the main loop.  glutMainLoop never returns.
+    glutMainLoop( );
 
     return 0;	// This line is never reached.
 }

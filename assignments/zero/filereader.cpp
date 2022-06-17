@@ -1,23 +1,41 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <typeinfo>
 #include <vector>
 using namespace std;
 
-vector<string> splitOnSlashes(string slashDelimited) {
+vector<int> faceTripletToVec(string faceTrip) {
     size_t firstSlashPos, secondSlashPos;
-    vector<string> stringVec;
 
     //Get slash positions
-    firstSlashPos = slashDelimited.find('/');
-    secondSlashPos = slashDelimited.find('/', firstSlashPos + 1);
+    firstSlashPos = faceTrip.find('/');
+    secondSlashPos = faceTrip.find('/', firstSlashPos + 1);
     
     //Get split strings
-    stringVec.push_back(slashDelimited.substr(0, firstSlashPos));
-    stringVec.push_back(slashDelimited.substr(firstSlashPos + 1, secondSlashPos - firstSlashPos - 1));
-    stringVec.push_back(slashDelimited.substr(secondSlashPos + 1, string::npos));
+    string vertex = faceTrip.substr(0, firstSlashPos);
+    string dunno = faceTrip.substr(
+        firstSlashPos + 1,
+        secondSlashPos - firstSlashPos - 1
+    );
+    string normal = faceTrip.substr(
+        secondSlashPos + 1,
+        string::npos
+    );
 
-    return stringVec;
+    //Convert split strings to integers and add to final vector
+    vector<int> intVec;
+    intVec.push_back(stoi(vertex));
+    intVec.push_back(stoi(dunno));
+    intVec.push_back(stoi(normal));
+
+    return intVec;
+}
+
+void printFaceVec(vector<int> face) {
+    cout << "\t\tvertex: " << face[0] + 100 << "--" << typeid(face[0]).name() << endl;
+    cout << "\t\t?:" << face[1] + 200 << "--" << typeid(face[1]).name() << endl;
+    cout << "\t\tnormal: " << face[2] + 300 << "--" << typeid(face[2]).name() << endl;
 }
 
 void readFile() {
@@ -40,20 +58,14 @@ void readFile() {
         if(label == "f") {
             cout << label << " line:" << endl;
             cout << "\ttriplet1: " << val1 << endl;
-            vector<string> faceAtts1 = splitOnSlashes(val1);
-            cout << "\t\tvertex: " << faceAtts1[0] << endl;
-            cout << "\t\t?:" << faceAtts1[1] << endl;
-            cout << "\t\tnormal: " << faceAtts1[2] << endl;
-            cout << "\ttriplet2: " << val2 << endl;
-            vector<string> faceAtts2 = splitOnSlashes(val2);
-            cout << "\t\tvertex: " << faceAtts2[0] << endl;
-            cout << "\t\t?:" << faceAtts2[1] << endl;
-            cout << "\t\tnormal: " << faceAtts2[2] << endl;
-            cout << "\ttriplet3: " << val3 << endl;
-            vector<string> faceAtts3 = splitOnSlashes(val3);
-            cout << "\t\tvertex: " << faceAtts3[0] << endl;
-            cout << "\t\t?:" << faceAtts3[1] << endl;
-            cout << "\t\tnormal: " << faceAtts3[2] << endl;
+            vector<int> face1 = faceTripletToVec(val1);
+            printFaceVec(face1);
+            cout << "\ttriplet3: " << val2 << endl;
+            vector<int> face2 = faceTripletToVec(val2);
+            printFaceVec(face2);
+            cout << "\ttriplet2: " << val3 << endl;
+            vector<int> face3 = faceTripletToVec(val3);
+            printFaceVec(face3);
         }
     }
 }
